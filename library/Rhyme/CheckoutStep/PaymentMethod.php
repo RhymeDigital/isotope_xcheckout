@@ -10,7 +10,7 @@
  * @license    http://opensource.org/licenses/lgpl-3.0.html
  */
 
-namespace HBAgency\CheckoutStep;
+namespace Rhyme\CheckoutStep;
 
 use Isotope\Interfaces\IsotopeCheckoutStep;
 use Isotope\CheckoutStep\PaymentMethod as Isotope_PaymentMethod;

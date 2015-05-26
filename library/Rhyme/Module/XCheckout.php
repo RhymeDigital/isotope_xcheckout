@@ -10,7 +10,7 @@
  * @license    http://opensource.org/licenses/lgpl-3.0.html
  */
  
-namespace HBAgency\Module;
+namespace Rhyme\Module;
 
 use Isotope\Module\Checkout as IsotopeCheckout;
 
@@ -74,9 +74,14 @@ class XCheckout extends IsotopeCheckout
 	 */
 	protected function compile()
 	{
-		$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/isotope_xcheckout/assets/json2.js';
-	    $GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/isotope_xcheckout/assets/xcheckout.js';
-        
+		// Add scripts
+		foreach ($GLOBALS['XCHECKOUT_JS'] as $script) {
+			$GLOBALS['TL_JAVASCRIPT'][] = $script;
+		}
+		foreach ($GLOBALS['XCHECKOUT_CSS'] as $script) {
+			$GLOBALS['TL_CSS'][] = $script;
+		}
+		
         global $objPage;
         $this->Template->pageid = $objPage->id;
         $this->Template->step   = $this->strCurrentStep;
@@ -200,8 +205,8 @@ class XCheckout extends IsotopeCheckout
 		/******************** CUSTOM ********************/
 		//Generate login
 		if($this->strCurrentStep == 'address_shipping'){
-		    $objLogin = new \HBAgency\CheckoutStep\Login($this);
-            $this->Template->login = $objLogin->generate();
+		    //$objLogin = new \Rhyme\CheckoutStep\Login($this);
+            //$this->Template->login = $objLogin->generate();
 		}
         // User pressed "back" button
         if (strlen(\Input::post('previousStep')) && !$this->isAjax) {
@@ -230,7 +235,32 @@ class XCheckout extends IsotopeCheckout
 	    	$arrBuffer[$key]['id'] = str_replace('-', '_' , standardize($arrSteps['class']));
     	}
     	
+    	$this->removeConditonalSelect();
+    	
     	return $arrBuffer;
+    }
+	
+	/**
+     * Remove conditional select if we don't need it - todo: find a better way to do this
+     * @return  void
+     */
+    protected function removeConditonalSelect()
+    {    
+    	if ($this->strCurrentStep == 'review_payment' && isset($GLOBALS['TL_JAVASCRIPT']['conditionalselect']))
+    	{
+	    	unset($GLOBALS['TL_JAVASCRIPT']['conditionalselect']);
+	    	
+	    	if (is_array($GLOBALS['TL_BODY']) && count($GLOBALS['TL_BODY']))
+	    	{
+		    	foreach ($GLOBALS['TL_BODY'] as $key=>$body)
+		    	{
+			    	if (stripos($body, 'new ConditionalSelect') !== false)
+			    	{
+				    	$GLOBALS['TL_BODY'][$key] = '';
+			    	}
+		    	}
+	    	}
+    	}
     }
 
 }

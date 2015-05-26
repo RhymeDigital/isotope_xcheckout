@@ -10,9 +10,9 @@
  * @license    http://opensource.org/licenses/lgpl-3.0.html
  */
  
-namespace HBAgency\Hooks\AjaxRequest;
+namespace Rhyme\Hooks\AjaxRequest;
 
-use HBAgency\AjaxInput;
+use Rhyme\AjaxInput;
 
 use Isotope\Isotope;
 
@@ -21,9 +21,9 @@ use Haste\Util\InsertTag as Haste_InsertTag;
 /**
  * Load a AJAX requested checkout module
  *
- * @copyright  HBAgency 2014
- * @author     Blair Winans <bwinans@hbagency.com>
- * @author     Adam Fisher <afisher@hbagency.com>
+ * @copyright  Rhyme digital, LLC. 2015
+ * @author     Blair Winans <blair@rhyme.digital>
+ * @author     Adam Fisher <adam@rhyme.digital>
  * @package    IsotopeXCheckout
  */
 class LoadXCheckout extends \Frontend
@@ -34,7 +34,7 @@ class LoadXCheckout extends \Frontend
 	 */
 	public function run()
 	{
-	    if(AjaxInput::get('mod')=='xcheckout' && AjaxInput::get('action')=='fmd' && intval(AjaxInput::get('id') > 0))
+	    if(AjaxInput::get('action')=='sendxcheckout' && intval(AjaxInput::get('id') > 0))
 	    {
 	        $this->setAjaxGetAndPostVals();
 	            	    
@@ -43,6 +43,7 @@ class LoadXCheckout extends \Frontend
     	    $varValue = json_encode(array
 			(
 				'token'		=> REQUEST_TOKEN,
+				'scripts'	=> $this->getScripts(),
 				'content'	=> Haste_InsertTag::replaceRecursively($varValue),
 			));
 			
@@ -73,6 +74,7 @@ class LoadXCheckout extends \Frontend
 	    }
 	    
 	    //Shipping and Payment Methods
+	    $arrPostVals[] = 'ShippingAddress';
 	    $arrPostVals[] = 'ShippingMethod';
 	    $arrPostVals[] = 'PaymentMethod';
 	    
@@ -99,18 +101,73 @@ class LoadXCheckout extends \Frontend
 		
 		foreach($arrGetVals as $strValue)
 		{
-    		if(AjaxInput::get($strValue))
+    		if(AjaxInput::get($strValue) !== null)
     		{
         		\Input::setGet($strValue, AjaxInput::get($strValue));
     		}
 		}
 		foreach($arrPostVals as $strValue)
 		{
-    		if(AjaxInput::post($strValue))
+    		if(AjaxInput::post($strValue) !== null)
     		{
         		\Input::setPost($strValue, AjaxInput::post($strValue));
     		}
 		}
 		
+	}
+	
+	/**
+	 * Add all AJAX scripts to be executed on return
+	 */
+	protected function getScripts()
+	{
+		$strBuffer = $this->getConditonalSelectScripts();
+		
+        // HOOK: Add custom scripts
+		if (isset($GLOBALS['TL_HOOKS']['setXCheckoutAjaxScripts']) && is_array($GLOBALS['TL_HOOKS']['setXCheckoutAjaxScripts']))
+		{
+			foreach ($GLOBALS['TL_HOOKS']['setXCheckoutAjaxScripts'] as $callback)
+			{
+				$this->import($callback[0]);
+				$strBuffer = $this->$callback[0]->$callback[1]($strBuffer);
+			}
+		}
+    	
+    	return $strBuffer;
+	}
+	
+	/**
+	 * Add conditional select menu scripts to update the countries/states
+	 */
+	protected function getConditonalSelectScripts()
+	{
+		$strBuffer = '';
+		
+    	if (is_array($GLOBALS['TL_BODY']) && count($GLOBALS['TL_BODY']))
+    	{
+	    	foreach ($GLOBALS['TL_BODY'] as $body)
+	    	{
+		    	if (stripos($body, 'new ConditionalSelect') !== false)
+		    	{
+			    	$strBuffer .= str_replace(array('<script>', '</script>', "\n"), '', $body);
+		    	}
+	    	}
+    	}
+    	
+    	return $strBuffer;
+	}
+
+	/**
+	 * Use output buffer to var dump to a string
+	 * 
+	 * @param	string
+	 * @return	string 
+	 */
+	public static function varDumpToString($var)
+	{
+		ob_start();
+		var_dump($var);
+		$result = ob_get_clean();
+		return $result;
 	}
 }

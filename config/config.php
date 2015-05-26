@@ -14,14 +14,14 @@
 /**
  * Frontend modules
  */
-$GLOBALS['FE_MOD']['isotope']['iso_xcheckout'] = 'HBAgency\Module\XCheckout';
+$GLOBALS['FE_MOD']['isotope']['iso_xcheckout'] = 'Rhyme\Module\XCheckout';
 
 
 /**
  * Hooks
  */
-$GLOBALS['TL_HOOKS']['ajaxRequest'][]		= array('\HBAgency\Hooks\AjaxRequest\LoadXCheckout', 'run');
-$GLOBALS['ISO_HOOKS']['postCheckout'][]		= array('\HBAgency\Hooks\PostCheckout\CreateMember', 'run');
+$GLOBALS['TL_HOOKS']['ajaxRequest'][]		= array('\Rhyme\Hooks\AjaxRequest\LoadXCheckout', 'run');
+$GLOBALS['ISO_HOOKS']['postCheckout'][]		= array('\Rhyme\Hooks\PostCheckout\CreateMember', 'run');
 
 
 /**
@@ -29,13 +29,18 @@ $GLOBALS['ISO_HOOKS']['postCheckout'][]		= array('\HBAgency\Hooks\PostCheckout\C
  */
 $GLOBALS['ISO_CHECKOUTSTEP'] = array
 (
-    'address_shipping'   => array( 
-        'HBAgency\CheckoutStep\BillingAddress', 
+	'login_newuser_guest'			=> array(
+		'Rhyme\CheckoutStep\Login',
+		'Rhyme\CheckoutStep\NewUser',
+		'Rhyme\CheckoutStep\Guest',
+	),
+    'address_shipping'   	=> array( 
+        'Rhyme\CheckoutStep\BillingAddress', 
         'Isotope\CheckoutStep\ShippingAddress', 
         'Isotope\CheckoutStep\ShippingMethod'
     ),
-    'review_payment'   => array(
-        'HBAgency\CheckoutStep\PaymentMethod', 
+    'review_payment'   		=> array(
+        'Rhyme\CheckoutStep\PaymentMethod', 
         'Isotope\CheckoutStep\OrderConditionsOnTop', 
         'Isotope\CheckoutStep\OrderInfo', 
         'Isotope\CheckoutStep\OrderConditionsBeforeProducts', 
@@ -43,3 +48,11 @@ $GLOBALS['ISO_CHECKOUTSTEP'] = array
         'Isotope\CheckoutStep\OrderConditionsAfterProducts'
     ),
 );
+
+
+/**
+ * Scripts
+ */
+$GLOBALS['XCHECKOUT_JS']['json2']			= 'system/modules/isotope_xcheckout/assets/js/json2.js';
+$GLOBALS['XCHECKOUT_JS']['xcheckout']		= 'system/modules/isotope_xcheckout/assets/js/xcheckout.js';
+$GLOBALS['XCHECKOUT_CSS']['xcheckout']		= 'system/modules/isotope_xcheckout/assets/css/xcheckout.css';

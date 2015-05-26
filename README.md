@@ -1,7 +1,7 @@
 ModuleIsotopeXCheckout
 ======================
 
-An advanced checkout module for Isotope eCommerce. Uses AJAX to load shipping and payment modules for a nice one or two-screen checkout process.
+An advanced checkout module for Isotope eCommerce. Uses AJAX to load shipping and payment modules for a sreamlined checkout process.
 
 General Usage
 -------------
@@ -11,6 +11,7 @@ General Usage
 Changelog
 ---------
 
+* v1.0.0 -- 05/26/2015 - Overhauled the steps, Javascript, AJAX, and started working on the included CSS.
 * v0.1.5 -- 02/06/2014 - Isotope 2.0 Updates
 * v0.1.4 -- 12/30/2011 - Added in HTML5 templates.
 * v0.1.3 -- 12/29/2011 - Working version. Added AJAX update of review screen.

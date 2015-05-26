@@ -10,7 +10,7 @@
  * @license    http://opensource.org/licenses/lgpl-3.0.html
  */
 
-namespace HBAgency\CheckoutStep;
+namespace Rhyme\CheckoutStep;
 
 use Isotope\CheckoutStep\BillingAddress as IsoBillingAddress;
 use Isotope\Interfaces\IsotopeCheckoutStep;
@@ -45,7 +45,7 @@ class BillingAddress extends IsoBillingAddress implements IsotopeCheckoutStep
     	$this->arrWidgets = parent::getWidgets();
     	
     	//************************ CUSTOM ****************************//
-    	if (FE_USER_LOGGED_IN !== true)
+    	if (FE_USER_LOGGED_IN !== true && $_SESSION['XCHECKOUT']['USER'] == 'newuser')
     	{
 	    	//Add in username and password fields
 	    	//Construct username widget

@@ -14,7 +14,7 @@
 /**
  * Register PSR-0 namespace
  */
-NamespaceClassLoader::add('HBAgency', 'system/modules/isotope_xcheckout/library');
+NamespaceClassLoader::add('Rhyme', 'system/modules/isotope_xcheckout/library');
 
 
 /**
@@ -32,11 +32,13 @@ NamespaceClassLoader::addClassMap(array
 TemplateLoader::addFiles(array
 (
 	//Checkout
-    'iso_checkout_login'          => 'system/modules/isotope_xcheckout/templates/checkout',
-    'iso_checkout_register'       => 'system/modules/isotope_xcheckout/templates/checkout',
-	'iso_checkout_payment_method' => 'system/modules/isotope_xcheckout/templates/checkout',
+	'iso_checkout_guest'			=> 'system/modules/isotope_xcheckout/templates/checkout',
+    'iso_checkout_login'          	=> 'system/modules/isotope_xcheckout/templates/checkout',
+    'iso_checkout_newuser'         	=> 'system/modules/isotope_xcheckout/templates/checkout',
+    'iso_checkout_register'       	=> 'system/modules/isotope_xcheckout/templates/checkout',
+	'iso_checkout_payment_method' 	=> 'system/modules/isotope_xcheckout/templates/checkout',
     
     //Modules
-    'mod_iso_xcheckout'           => 'system/modules/isotope_xcheckout/templates/modules',
+    'mod_iso_xcheckout'           	=> 'system/modules/isotope_xcheckout/templates/modules',
     
 ));

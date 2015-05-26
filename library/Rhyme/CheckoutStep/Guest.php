@@ -10,15 +10,21 @@
  * @license    http://opensource.org/licenses/lgpl-3.0.html
  */
 
-namespace HBAgency\CheckoutStep;
+namespace Rhyme\CheckoutStep;
 
 use Isotope\Interfaces\IsotopeProductCollection;
 use Isotope\Interfaces\IsotopeCheckoutStep;
 use Isotope\CheckoutStep\CheckoutStep;
 use Isotope\Isotope;
 
-class Login extends CheckoutStep implements IsotopeCheckoutStep
+class Guest extends CheckoutStep implements IsotopeCheckoutStep
 {
+
+    /**
+     * The name of the submit button
+     * @var  string
+     */
+    protected $strSubmit = 'submit_guest';
 
     /**
      * Returns true to enable the module
@@ -26,7 +32,7 @@ class Login extends CheckoutStep implements IsotopeCheckoutStep
      */
     public function isAvailable()
     {
-        if($this->objModule->iso_checkout_method == 'guest')
+        if($this->objModule->iso_checkout_method == 'member')
         {
             return false;
         }
@@ -41,18 +47,26 @@ class Login extends CheckoutStep implements IsotopeCheckoutStep
      */
     public function generate()
     {
-        $strLogin = $this->getFrontendModule($this->objModule->iso_loginModule);
-        
-        if($strLogin === '')
-        {
-            return '';
-        }
-        
-        $objTemplate = new \Isotope\Template('iso_checkout_login');
-        $objTemplate->login = $strLogin;
-        $objTemplate->headline = $GLOBALS['TL_LANG']['MSC']['login'];
-        $objTemplate->message = $this->objModule->iso_checkout_method == 'member' ? $GLOBALS['TL_LANG']['MSC']['loginMessage'] : $GLOBALS['TL_LANG']['MSC']['bothMessage'];
+    	$this->handleSubmit();
+    	
+        $objTemplate = new \Isotope\Template('iso_checkout_newuser');
+        $objTemplate->headline 		= $GLOBALS['TL_LANG']['MSC']['guestHeadline'] ?: '';
+        $objTemplate->message 		= $GLOBALS['TL_LANG']['MSC']['guestMessage'] ?: '';
+        $objTemplate->btnValue 		= $GLOBALS['TL_LANG']['MSC']['guestBtnLabel'] ?: 'Continue as a guest';
+        $objTemplate->btnName 		= $this->strSubmit;
         return $objTemplate->parse();
+    }
+    
+    /**
+     * Handle submissions
+     * @return  void
+     */
+    public function handleSubmit()
+    {
+    	if (\Input::post('FORM_SUBMIT') && \Input::post('submit_guest'))
+    	{
+    		$_SESSION['XCHECKOUT']['USER'] = 'guest';
+    	}
     }
     
     /**
