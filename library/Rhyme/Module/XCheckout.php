@@ -78,9 +78,6 @@ class XCheckout extends IsotopeCheckout
 		foreach ($GLOBALS['XCHECKOUT_JS'] as $script) {
 			$GLOBALS['TL_JAVASCRIPT'][] = $script;
 		}
-		foreach ($GLOBALS['XCHECKOUT_CSS'] as $script) {
-			$GLOBALS['TL_CSS'][] = $script;
-		}
 		
         global $objPage;
         $this->Template->pageid = $objPage->id;
