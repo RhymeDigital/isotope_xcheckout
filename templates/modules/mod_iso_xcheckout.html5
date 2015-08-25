@@ -10,25 +10,12 @@
 <div class="steps block">
 <ol class="level_1 steps<?php echo count($this->steps); ?>">
 <?php $i=0; foreach( $this->steps as $step ): ?>
-<?php $strImg = '';
-if ($i == 0) {
-	$strImg .= $step['isActive'] ? 'start-green' : 'start-blue';
-}
-elseif ($i == count($this->steps)-1) {
-	$strImg .= $step['isActive'] ? 'end-green' : 'end-gray';
-}
-else {
-	$strImg .= $step['isActive'] ? 'middle-green' : (strlen($step['href']) ? 'middle-blue' : 'middle-gray');
-}
-?>
 <li class="<?php echo $step['class']; ?>">
 <?php if (strlen($step['href'])): ?>
 <a class="<?php echo $step['class']; ?>" href="<?php echo $step['href']; ?>" title="<?php echo $step['title']; ?>">
-  <img src="system/modules/isotope_xcheckout/assets/img/progressbar/<?php echo $strImg; ?>.png" alt="<?php echo $step['title']; ?>">
-  <?php echo $step['link']; ?>
+  <span class="steptext"><?php echo $step['link']; ?></span>
 </a>
 <?php else: ?>
-<img src="system/modules/isotope_xcheckout/assets/img/progressbar/<?php echo $strImg; ?>.png" alt="<?php echo $step['link']; ?>">
 <span class="<?php echo $step['class']; ?>"><?php if($step['isActive']): ?><span class="invisible"><?php echo $this->activeStep; ?></span><?php endif; ?><?php echo $step['link']; ?></span>
 <?php endif; ?>
 </li>
