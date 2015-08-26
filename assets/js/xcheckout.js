@@ -285,6 +285,7 @@ var IsotopeXCheckout = (function() {
                     spinner = document.createElement('div');
                     spinner.setAttribute('id', 'spinner');
                     spinnerParent.appendChild(spinner);
+                    spinnerParent.className += ' spinning';
                 }
             }
             if (xhr.readyState == 4) {
@@ -296,6 +297,7 @@ var IsotopeXCheckout = (function() {
                             spinnerParent.removeChild(spinner);
                         }catch(err){}
                         spinner = null;
+                        spinnerParent.className = spinnerParent.className.replace( /(?:^|\s)spinning(?!\S)/g , '' );
                         return;
                     }
 
@@ -306,6 +308,7 @@ var IsotopeXCheckout = (function() {
                         spinnerParent.removeChild(spinner);
                     }catch(err){}
                     spinner = null;
+                    spinnerParent.className = spinnerParent.className.replace( /(?:^|\s)spinning(?!\S)/g , '' );
 
                 }catch(err){}
             }
