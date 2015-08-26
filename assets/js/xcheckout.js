@@ -12,10 +12,11 @@
 var IsotopeXCheckout = (function() {
     "use strict";
 
-    var loadMessage = 'Loading checkout data...';
     var spinner = null;
     var step,
         form,
+        loadMessage,
+        refreshMessage,
         billingadd,
         shippingadd,
         orderinfo,
@@ -39,6 +40,10 @@ var IsotopeXCheckout = (function() {
         shippingmethod 		= document.getElementById(step+'_shippingmethod');
         paymentmethod 		= document.getElementById(step+'_paymentmethod');
         orderinfo 			= document.getElementById(step+'_orderinfo');
+
+        //Customize language settings
+        loadMessage     = config.loadMessage || 'Loading checkout data...';
+        refreshMessage  = config.refreshMessage || 'Refresh Shipping Options';
 
         // Custom address fields toggler
         if (shippingadd) {
@@ -153,7 +158,7 @@ var IsotopeXCheckout = (function() {
         if (shiprefreshParent) {
             var shiprefresh = document.createElement('input');
             shiprefresh.type = 'button';
-            shiprefresh.value = 'Refresh';
+            shiprefresh.value = refreshMessage;
             shiprefresh.setAttribute('id', 'shiprefresh');
             shiprefreshParent.appendChild(shiprefresh);
 
@@ -394,6 +399,9 @@ var IsotopeXCheckout = (function() {
          */
         'setLoadMessage': function(message) {
             loadMessage = message || 'Loading checkout data...';
+        },
+        'setRefreshMessage': function(message) {
+            refreshMessage = message || 'Refresh Shipping Options';
         },
 
         'enableDisableRequiredFields': function(parent, blnRequired) {

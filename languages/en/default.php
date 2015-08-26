@@ -25,7 +25,9 @@ $GLOBALS['TL_LANG']['MSC']['checkout_review_payment'] = 'Review & Payment';
 /**
  * Checkout Step Labels
  */
-$GLOBALS['TL_LANG']['MSC']['login']	= 'Login';
+$GLOBALS['TL_LANG']['MSC']['login']	            = 'Login';
+$GLOBALS['TL_LANG']['MSC']['refresh_shipping']	= 'Refresh Shipping Options';
+$GLOBALS['TL_LANG']['MSC']['loading_message']	= 'Loading checkout data...';
 
 /**
  * Miscellaneous
