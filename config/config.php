@@ -55,4 +55,3 @@ $GLOBALS['ISO_CHECKOUTSTEP'] = array
  */
 $GLOBALS['XCHECKOUT_JS']['json2']			= 'system/modules/isotope_xcheckout/assets/js/json2.js';
 $GLOBALS['XCHECKOUT_JS']['xcheckout']		= 'system/modules/isotope_xcheckout/assets/js/xcheckout.js';
-$GLOBALS['XCHECKOUT_CSS']['xcheckout']		= 'system/modules/isotope_xcheckout/assets/css/xcheckout.css';

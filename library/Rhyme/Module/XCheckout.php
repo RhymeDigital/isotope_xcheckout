@@ -12,6 +12,7 @@
  
 namespace Rhyme\Module;
 
+use Rhyme\AjaxInput;
 use Isotope\Module\Checkout as IsotopeCheckout;
 
 
@@ -78,9 +79,6 @@ class XCheckout extends IsotopeCheckout
 		foreach ($GLOBALS['XCHECKOUT_JS'] as $script) {
 			$GLOBALS['TL_JAVASCRIPT'][] = $script;
 		}
-		foreach ($GLOBALS['XCHECKOUT_CSS'] as $script) {
-			$GLOBALS['TL_CSS'][] = $script;
-		}
 		
         global $objPage;
         $this->Template->pageid = $objPage->id;
@@ -96,6 +94,9 @@ class XCheckout extends IsotopeCheckout
 	public function generateAjax()
 	{	
 		$this->isAjax = true;
+
+        //Restore \Input class get and post vals
+        AjaxInput::restore();
 	
 		//Check for step and set to auto_item
 		if($GLOBALS['TL_CONFIG']['useAutoItem'])
