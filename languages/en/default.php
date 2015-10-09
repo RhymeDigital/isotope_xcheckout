@@ -43,6 +43,7 @@ $GLOBALS['TL_LANG']['MSC']['registerMessage'] = 'Create a password to access you
 $GLOBALS['TL_LANG']['MSC']['bothMessage'] = 'You can login to your account here.';
 $GLOBALS['TL_LANG']['MSC']['newuserHeadline'] = 'New Account or Guest Checkout';
 $GLOBALS['TL_LANG']['MSC']['newuserMessage'] = 'You can also create a new account, or checkout as a guest.';
+$GLOBALS['TL_LANG']['MSC']['registeringAsUser'] = 'Registering as %s.';
 
 
 $GLOBALS['TL_LANG']['ERR']['passwordUnique'] = 'Your password cannot be the same as your username/email address. Please select another password.';

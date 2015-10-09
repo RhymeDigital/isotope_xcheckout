@@ -40,11 +40,11 @@ var IsotopeXCheckout = (function() {
         shippingmethod 		= document.getElementById(step+'_shippingmethod');
         paymentmethod 		= document.getElementById(step+'_paymentmethod');
         orderinfo 			= document.getElementById(step+'_orderinfo');
-
+        
         //Customize language settings
         loadMessage     = config.loadMessage || 'Loading checkout data...';
         refreshMessage  = config.refreshMessage || 'Refresh Shipping Options';
-
+        
         // Custom address fields toggler
         if (shippingadd) {
             setToggleAddressFields();

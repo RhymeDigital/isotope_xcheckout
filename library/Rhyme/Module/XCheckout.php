@@ -94,9 +94,9 @@ class XCheckout extends IsotopeCheckout
 	public function generateAjax()
 	{	
 		$this->isAjax = true;
-
-        //Restore \Input class get and post vals
-        AjaxInput::restore();
+		
+		//Restore \Input class get and post vals
+		AjaxInput::restore();
 	
 		//Check for step and set to auto_item
 		if($GLOBALS['TL_CONFIG']['useAutoItem'])

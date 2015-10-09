@@ -41,6 +41,8 @@ class BillingAddress extends IsoBillingAddress implements IsotopeCheckoutStep
      */
     protected function getWidgets()
     {
+    	if (!empty($this->arrWidgets)) return $this->arrWidgets;
+    	
     	//Parent getWidgets
     	$this->arrWidgets = parent::getWidgets();
     	
@@ -66,8 +68,8 @@ class BillingAddress extends IsoBillingAddress implements IsotopeCheckoutStep
 			$objExplainWidget->text = $GLOBALS['TL_LANG']['MSC']['registerMessage'];
 			$objExplainWidget->class = 'registration_explanation';
 			
-			$objUserWidget = new \FormTextField(\FormTextField::getAttributesFromDca($arrUserData, 'username', $_SESSION['CHECKOUT_DATA']['billing_address']['username']));
-			$objPassWidget = new \FormPassword(\FormPassword::getAttributesFromDca($arrPassData, 'password', $_SESSION['CHECKOUT_DATA']['billing_address']['password']));
+			$objUserWidget = new \FormTextField(\FormTextField::getAttributesFromDca($arrUserData, 'username', $_SESSION['CHECKOUT_DATA']['billing_address']['username'] ?: $_SESSION['CREATE_MEMBER']['username']));
+			$objPassWidget = new \FormPassword(\FormPassword::getAttributesFromDca($arrPassData, 'password', $_SESSION['CHECKOUT_DATA']['billing_address']['password'] ?: $_SESSION['CREATE_MEMBER']['password']));
 			
 			$objUserWidget->tableless = $this->objModule->tableless;
 			$objUserWidget->rowClass = 'row_0 row_first';
@@ -77,9 +79,9 @@ class BillingAddress extends IsoBillingAddress implements IsotopeCheckoutStep
 			$objPassWidget->rowClass = 'row_1';
 			$objPassWidget->rowClassConfirm = 'row_1 row_last';	
 			
-			$this->arrWidgets[] = $objExplainWidget;
-			$this->arrWidgets[] = $objUserWidget;
-			$this->arrWidgets[] = $objPassWidget;
+			$this->arrWidgets['reg_explain'] 	= $objExplainWidget;
+			$this->arrWidgets['reg_username'] 	= $objUserWidget;
+			$this->arrWidgets['reg_password'] 	= $objPassWidget;
 		}
 		//************************ CUSTOM ****************************//
 		
@@ -148,56 +150,75 @@ class BillingAddress extends IsoBillingAddress implements IsotopeCheckoutStep
             //Handle username and password
             } else {
             
-                $varUserValue = \Input::post('username');
-				$varPassValue = \Input::post('password');
+                $varUserValue = \Input::post('username') ?: $_SESSION['CREATE_MEMBER']['username'];
+				$varPassValue = \Input::post('password') ?: $_SESSION['CREATE_MEMBER']['password'];
 				$varEmailValue = \Input::post('BillingAddress_email');
-            
-                // Validate input on Non-AJAX request
-                if ($blnValidate && !\Environment::get('isAjaxRequest') && (!empty($varUserValue) || !empty($varPassValue) ) ) {
-                    
-                    //Validate the widget first
-                    $objWidget->validate();
-                    $varValue = $objWidget->value;
-                    
-                    // Check whether the password matches the username
-    				if ($varUserValue == $varPassValue)
-    				{
-    					$objWidget->addError($GLOBALS['TL_LANG']['ERR']['passwordUnique']);
-    				}
-    				
-    				//Check whether the username/email exists
-    				$m = \MemberModel::getTable();
-                    $objUnique = \MemberModel::findOneBy(array("LCASE($m.username)=LCASE(?) OR LCASE($m.email)=LCASE(?)"), array($varUserValue, $varEmailValue));
-                    if(null != $objUnique && $objWidget->name == 'username'){
-                        $objWidget->addError($GLOBALS['TL_LANG']['ERR']['emailUnique']);
-                    }
-                    
-                    if($objWidget->hasErrors()){
-                        $blnIsValid = false;
-                        $this->blnError = true;
-                    }
-                
-                } else {
-                
-                    \Input::setPost($objWidget->name, $objWidget->value);
-                    
-                    $objValidator = clone $objWidget;
-                    $objValidator->validate();
-    
-                    if ($objValidator->hasErrors()) {
-                        $blnIsValid = false;
-                    }
-                
-                }
-                
+				
+				if (!$_SESSION['CREATE_MEMBER']['username'] && !$_SESSION['CREATE_MEMBER']['password'])
+				{
+	                // Validate input on Non-AJAX request
+	                if ($blnValidate && (!empty($varUserValue) || !empty($varPassValue) ) ) 
+	                {
+	                    
+	                    //Validate the widget first
+	                    $objWidget->validate();
+	                    $varValue = $objWidget->value;
+	                    
+	                    // Check whether the password matches the username
+	    				if ($varUserValue == $varPassValue)
+	    				{
+	    					$objWidget->addError($GLOBALS['TL_LANG']['ERR']['passwordUnique']);
+	    				}
+	    				
+	    				//Check whether the username/email exists
+	    				$m = \MemberModel::getTable();
+	                    $objUnique = \MemberModel::findOneBy(array("LCASE($m.username)=LCASE(?) OR LCASE($m.email)=LCASE(?)"), array($varUserValue, $varEmailValue));
+	                    if(null != $objUnique && $objWidget->name == 'username'){
+	                        $objWidget->addError($GLOBALS['TL_LANG']['ERR']['emailUnique']);
+	                    }
+	                    
+	                    if($objWidget->hasErrors()){
+	                        $blnIsValid = false;
+	                        $this->blnError = true;
+	                    }
+	                
+	                } else {
+	                
+	                    \Input::setPost($objWidget->name, $objWidget->value);
+	                    
+	                    $objValidator = clone $objWidget;
+	                    $objValidator->validate();
+	    
+	                    if ($objValidator->hasErrors()) {
+	                        $blnIsValid = false;
+	                    }
+	                }
+				}
             }
             
             //Success!
-            if($blnIsValid){
+            if($blnIsValid)
+            {
                 $this->blnError = false;
-                //Encrypt & save the hashed password in the session so we can set it later in the Create_member Hook
-				$_SESSION['CREATE_MEMBER']['password'] = \Encryption::encrypt($varPassValue);
-				$_SESSION['CREATE_MEMBER']['username'] = $varUserValue;
+                
+				if (!$_SESSION['CREATE_MEMBER']['username'] && !$_SESSION['CREATE_MEMBER']['password'])
+				{
+	                //Encrypt & save the hashed password in the session so we can set it later in the Create_member Hook
+					$_SESSION['CREATE_MEMBER']['password'] = \Encryption::encrypt($varPassValue);
+					$_SESSION['CREATE_MEMBER']['username'] = $varUserValue;
+				}
+				else
+				{
+					unset($this->arrWidgets['reg_explain']);
+					unset($this->arrWidgets['reg_username']);
+					unset($this->arrWidgets['reg_password']);
+				
+					$objExplainWidget = new \FormExplanation();
+					$objExplainWidget->text = sprintf($GLOBALS['TL_LANG']['MSC']['registeringAsUser'], $varUserValue);
+					$objExplainWidget->class = 'registering_as_user';
+					
+					$this->arrWidgets['reg_explain_registeringasuser'] = $objExplainWidget;
+				}
             }
             
             //************************ CUSTOM ****************************//
@@ -205,6 +226,20 @@ class BillingAddress extends IsoBillingAddress implements IsotopeCheckoutStep
 
         return $arrAddress;
     }
+
+	/**
+	 * Use output buffer to var dump to a string
+	 * 
+	 * @param	string
+	 * @return	string 
+	 */
+	public static function varDumpToString($var)
+	{
+		ob_start();
+		var_dump($var);
+		$result = ob_get_clean();
+		return $result;
+	}
 
 
 
