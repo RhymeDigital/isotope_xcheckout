@@ -1,24 +1,30 @@
 <?php
 
 /**
- * IsotopeXCheckout for Isotope eCommerce
+ * Isotope eCommerce for Contao Open Source CMS
  *
- * Copyright (C) 2011-2014 HB Agency
+ * Copyright (C) 2009-2014 terminal42 gmbh & Isotope eCommerce Workgroup
  *
- * @package    IsotopeXCheckout
- * @link       http://www.hbagency.com
+ * @package    Isotope
+ * @link       http://isotopeecommerce.org
  * @license    http://opensource.org/licenses/lgpl-3.0.html
  */
 
-namespace HBAgency\CheckoutStep;
+namespace Rhyme\CheckoutStep;
 
 use Isotope\Interfaces\IsotopeProductCollection;
 use Isotope\Interfaces\IsotopeCheckoutStep;
 use Isotope\CheckoutStep\CheckoutStep;
 use Isotope\Isotope;
 
-class Login extends CheckoutStep implements IsotopeCheckoutStep
+class NewUser extends CheckoutStep implements IsotopeCheckoutStep
 {
+
+    /**
+     * The name of the submit button
+     * @var  string
+     */
+    protected $strSubmit = 'submit_newuser';
 
     /**
      * Returns true to enable the module
@@ -41,18 +47,26 @@ class Login extends CheckoutStep implements IsotopeCheckoutStep
      */
     public function generate()
     {
-        $strLogin = $this->getFrontendModule($this->objModule->iso_loginModule);
-        
-        if($strLogin === '')
-        {
-            return '';
-        }
-        
-        $objTemplate = new \Isotope\Template('iso_checkout_login');
-        $objTemplate->login = $strLogin;
-        $objTemplate->headline = $GLOBALS['TL_LANG']['MSC']['login'];
-        $objTemplate->message = $this->objModule->iso_checkout_method == 'member' ? $GLOBALS['TL_LANG']['MSC']['loginMessage'] : $GLOBALS['TL_LANG']['MSC']['bothMessage'];
+    	$this->handleSubmit();
+    	
+        $objTemplate = new \Isotope\Template('iso_checkout_newuser');
+        $objTemplate->headline 		= $GLOBALS['TL_LANG']['MSC']['newuserHeadline'] ?: '';
+        $objTemplate->message 		= $GLOBALS['TL_LANG']['MSC']['newuserMessage'] ?: '';
+        $objTemplate->btnValue 		= $GLOBALS['TL_LANG']['MSC']['newuserBtnLabel'] ?: 'Create a new account';
+        $objTemplate->btnName 		= $this->strSubmit;
         return $objTemplate->parse();
+    }
+    
+    /**
+     * Handle submissions
+     * @return  void
+     */
+    public function handleSubmit()
+    {
+    	if (\Input::post('FORM_SUBMIT') && \Input::post('submit_newuser'))
+    	{
+    		$_SESSION['XCHECKOUT']['USER'] = 'newuser';
+    	}
     }
     
     /**

@@ -1,16 +1,16 @@
 <?php
 
 /**
- * IsotopeXCheckout for Isotope eCommerce
+ * Isotope eCommerce for Contao Open Source CMS
  *
- * Copyright (C) 2011-2014 HB Agency
+ * Copyright (C) 2009-2014 terminal42 gmbh & Isotope eCommerce Workgroup
  *
- * @package    IsotopeXCheckout
- * @link       http://www.hbagency.com
+ * @package    Isotope
+ * @link       http://isotopeecommerce.org
  * @license    http://opensource.org/licenses/lgpl-3.0.html
  */
 
-namespace HBAgency\CheckoutStep;
+namespace Rhyme\CheckoutStep;
 
 use Isotope\CheckoutStep\BillingAddress as IsoBillingAddress;
 use Isotope\Interfaces\IsotopeCheckoutStep;
@@ -45,39 +45,42 @@ class BillingAddress extends IsoBillingAddress implements IsotopeCheckoutStep
     	$this->arrWidgets = parent::getWidgets();
     	
     	//************************ CUSTOM ****************************//
-    	//Add in username and password fields
-    	//Construct username widget
-		$arrUserData = array
-		(
-			'label'	=> &$GLOBALS['TL_LANG']['MSC']['username'],
-			'eval'	=> array('mandatory'=>true, 'unique'=>true, 'rgxp'=>'extnd', 'nospace'=>true, 'maxlength'=>64 ),
-		);
-					
-		//Construct password widget
-		$arrPassData = array
-		(
-			'label'	=> &$GLOBALS['TL_LANG']['MSC']['password'],
-			'eval'	=> array('mandatory'=>true, 'rgxp'=>'extnd', 'minlength'=>$GLOBALS['TL_CONFIG']['minPasswordLength']),
-		);
-		
-		$objExplainWidget = new \FormExplanation();
-		$objExplainWidget->text = $GLOBALS['TL_LANG']['MSC']['registerMessage'];
-		$objExplainWidget->class = 'registration_explanation';
-		
-		$objUserWidget = new \FormTextField(\FormTextField::getAttributesFromDca($arrUserData, 'username', $_SESSION['CHECKOUT_DATA']['billing_address']['username']));
-		$objPassWidget = new \FormPassword(\FormPassword::getAttributesFromDca($arrPassData, 'password', $_SESSION['CHECKOUT_DATA']['billing_address']['password']));
-		
-		$objUserWidget->tableless = $this->objModule->tableless;
-		$objUserWidget->rowClass = 'row_0 row_first';
-		$objUserWidget->rowClassConfirm = 'row_0 row_first';	
-		
-		$objPassWidget->tableless = $this->objModule->tableless;
-		$objPassWidget->rowClass = 'row_1';
-		$objPassWidget->rowClassConfirm = 'row_1 row_last';	
-		
-		$this->arrWidgets[] = $objExplainWidget;
-		$this->arrWidgets[] = $objUserWidget;
-		$this->arrWidgets[] = $objPassWidget;
+    	if (FE_USER_LOGGED_IN !== true && $_SESSION['XCHECKOUT']['USER'] == 'newuser')
+    	{
+	    	//Add in username and password fields
+	    	//Construct username widget
+			$arrUserData = array
+			(
+				'label'	=> &$GLOBALS['TL_LANG']['MSC']['username'],
+				'eval'	=> array('mandatory'=>true, 'unique'=>true, 'rgxp'=>'extnd', 'nospace'=>true, 'maxlength'=>64 ),
+			);
+						
+			//Construct password widget
+			$arrPassData = array
+			(
+				'label'	=> &$GLOBALS['TL_LANG']['MSC']['password'],
+				'eval'	=> array('mandatory'=>true, 'rgxp'=>'extnd', 'minlength'=>$GLOBALS['TL_CONFIG']['minPasswordLength']),
+			);
+			
+			$objExplainWidget = new \FormExplanation();
+			$objExplainWidget->text = $GLOBALS['TL_LANG']['MSC']['registerMessage'];
+			$objExplainWidget->class = 'registration_explanation';
+			
+			$objUserWidget = new \FormTextField(\FormTextField::getAttributesFromDca($arrUserData, 'username', $_SESSION['CHECKOUT_DATA']['billing_address']['username']));
+			$objPassWidget = new \FormPassword(\FormPassword::getAttributesFromDca($arrPassData, 'password', $_SESSION['CHECKOUT_DATA']['billing_address']['password']));
+			
+			$objUserWidget->tableless = $this->objModule->tableless;
+			$objUserWidget->rowClass = 'row_0 row_first';
+			$objUserWidget->rowClassConfirm = 'row_0 row_first';	
+			
+			$objPassWidget->tableless = $this->objModule->tableless;
+			$objPassWidget->rowClass = 'row_1';
+			$objPassWidget->rowClassConfirm = 'row_1 row_last';	
+			
+			$this->arrWidgets[] = $objExplainWidget;
+			$this->arrWidgets[] = $objUserWidget;
+			$this->arrWidgets[] = $objPassWidget;
+		}
 		//************************ CUSTOM ****************************//
 		
         return $this->arrWidgets;
@@ -123,7 +126,7 @@ class BillingAddress extends IsoBillingAddress implements IsotopeCheckoutStep
                     // Do not submit if there are errors
                     if ($objWidget->hasErrors()) {
                         $blnIsValid = false; //****************CUSTOM!
-                        //$this->blnError = true;
+                        $this->blnError = true;
                     } // Store current value
                     elseif ($objWidget->submitInput()) {
                         $arrAddress[$strName] = $varValue;
@@ -138,7 +141,7 @@ class BillingAddress extends IsoBillingAddress implements IsotopeCheckoutStep
     
                     if ($objValidator->hasErrors()) {
                         $blnIsValid = false; //****************CUSTOM!
-                        //$this->blnError = true;
+                        $this->blnError = true;
                     }
                 }
             //************************ CUSTOM ****************************//
@@ -147,12 +150,14 @@ class BillingAddress extends IsoBillingAddress implements IsotopeCheckoutStep
             
                 $varUserValue = \Input::post('username');
 				$varPassValue = \Input::post('password');
+				$varEmailValue = \Input::post('BillingAddress_email');
             
                 // Validate input on Non-AJAX request
                 if ($blnValidate && !\Environment::get('isAjaxRequest') && (!empty($varUserValue) || !empty($varPassValue) ) ) {
                     
                     //Validate the widget first
                     $objWidget->validate();
+                    $varValue = $objWidget->value;
                     
                     // Check whether the password matches the username
     				if ($varUserValue == $varPassValue)
@@ -162,13 +167,14 @@ class BillingAddress extends IsoBillingAddress implements IsotopeCheckoutStep
     				
     				//Check whether the username/email exists
     				$m = \MemberModel::getTable();
-                    $objUnique = \MemberModel::findOneBy(array("$m.username=?", "$m.email=?"), array($varUserValue, $varPassValue));
+                    $objUnique = \MemberModel::findOneBy(array("LCASE($m.username)=LCASE(?) OR LCASE($m.email)=LCASE(?)"), array($varUserValue, $varEmailValue));
                     if(null != $objUnique && $objWidget->name == 'username'){
                         $objWidget->addError($GLOBALS['TL_LANG']['ERR']['emailUnique']);
                     }
                     
                     if($objWidget->hasErrors()){
-                         $blnIsValid = false;
+                        $blnIsValid = false;
+                        $this->blnError = true;
                     }
                 
                 } else {

@@ -1,16 +1,16 @@
 <?php
 
 /**
- * IsotopeXCheckout for Isotope eCommerce
+ * Isotope eCommerce for Contao Open Source CMS
  *
- * Copyright (C) 2011-2014 HB Agency
+ * Copyright (C) 2009-2014 terminal42 gmbh & Isotope eCommerce Workgroup
  *
- * @package    IsotopeXCheckout
- * @link       http://www.hbagency.com
+ * @package    Isotope
+ * @link       http://isotopeecommerce.org
  * @license    http://opensource.org/licenses/lgpl-3.0.html
  */
 
-namespace HBAgency\CheckoutStep;
+namespace Rhyme\CheckoutStep;
 
 use Isotope\Interfaces\IsotopeCheckoutStep;
 use Isotope\CheckoutStep\PaymentMethod as Isotope_PaymentMethod;
@@ -129,5 +129,21 @@ class PaymentMethod extends Isotope_PaymentMethod implements IsotopeCheckoutStep
         $objTemplate->paymentForms 	 = $arrForms; //****************OVERRIDE**********************
         
         return $objTemplate->parse();
+    }
+
+    /**
+     * Return review information for last page of checkout
+     * @return  string
+     */
+    public function review()
+    {
+        return array(
+            'payment_method' => array(
+                'headline' => $GLOBALS['TL_LANG']['MSC']['payment_method'],
+                'info'     => Isotope::getCart()->getPaymentMethod() ? Isotope::getCart()->getPaymentMethod()->checkoutReview() : null,
+                'note'     => Isotope::getCart()->getPaymentMethod() ? Isotope::getCart()->getPaymentMethod()->note : null,
+                'edit'     => \Isotope\Module\Checkout::generateUrlForStep('payment'),
+            ),
+        );
     }
 }

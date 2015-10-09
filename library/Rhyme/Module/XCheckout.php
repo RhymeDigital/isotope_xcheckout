@@ -1,17 +1,18 @@
 <?php
 
 /**
- * IsotopeXCheckout for Isotope eCommerce
+ * Isotope eCommerce for Contao Open Source CMS
  *
- * Copyright (C) 2011-2014 HB Agency
+ * Copyright (C) 2009-2014 terminal42 gmbh & Isotope eCommerce Workgroup
  *
- * @package    IsotopeXCheckout
- * @link       http://www.hbagency.com
+ * @package    Isotope
+ * @link       http://isotopeecommerce.org
  * @license    http://opensource.org/licenses/lgpl-3.0.html
  */
  
-namespace HBAgency\Module;
+namespace Rhyme\Module;
 
+use Rhyme\AjaxInput;
 use Isotope\Module\Checkout as IsotopeCheckout;
 
 
@@ -19,13 +20,10 @@ use Isotope\Module\Checkout as IsotopeCheckout;
  * Class XCheckout
  * Adaptation of front end module Isotope "checkout".
  *
- * @copyright  Isotope eCommerce Workgroup 2009-2014
- * @copyright  HB Agency 2014
+ * @copyright  Isotope eCommerce Workgroup 2009-2012
  * @author     Andreas Schempp <andreas.schempp@terminal42.ch>
  * @author     Fred Bliss <fred.bliss@intelligentspark.com>
  * @author     Yanick Witschi <yanick.witschi@terminal42.ch>
- * @author     Blair Winans <bwinans@hbagency.com>
- * @author     Adam Fisher <afisher@hbagency.com>
  */
 class XCheckout extends IsotopeCheckout
 {
@@ -61,6 +59,11 @@ class XCheckout extends IsotopeCheckout
 
 			return $objTemplate->parse();
 		}
+		
+		if (\Environment::get('isAjaxRequest'))
+		{
+			return $this->generateAjax();
+		}
 
 		return parent::generate();
 	}
@@ -72,9 +75,11 @@ class XCheckout extends IsotopeCheckout
 	 */
 	protected function compile()
 	{
-		$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/isotope_xcheckout/assets/json2.js';
-	    $GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/isotope_xcheckout/assets/xcheckout.js';
-        
+		// Add scripts
+		foreach ($GLOBALS['XCHECKOUT_JS'] as $script) {
+			$GLOBALS['TL_JAVASCRIPT'][] = $script;
+		}
+		
         global $objPage;
         $this->Template->pageid = $objPage->id;
         $this->Template->step   = $this->strCurrentStep;
@@ -89,6 +94,9 @@ class XCheckout extends IsotopeCheckout
 	public function generateAjax()
 	{	
 		$this->isAjax = true;
+
+        //Restore \Input class get and post vals
+        AjaxInput::restore();
 	
 		//Check for step and set to auto_item
 		if($GLOBALS['TL_CONFIG']['useAutoItem'])
@@ -197,9 +205,9 @@ class XCheckout extends IsotopeCheckout
         
 		/******************** CUSTOM ********************/
 		//Generate login
-		if($this->strCurrentStep == 'address_shipping' && $this->iso_checkout_method != 'guest'){
-		    $objLogin = new \HBAgency\CheckoutStep\Login($this);
-            $this->Template->login = $objLogin->generate();
+		if($this->strCurrentStep == 'address_shipping'){
+		    //$objLogin = new \Rhyme\CheckoutStep\Login($this);
+            //$this->Template->login = $objLogin->generate();
 		}
         // User pressed "back" button
         if (strlen(\Input::post('previousStep')) && !$this->isAjax) {
@@ -228,7 +236,32 @@ class XCheckout extends IsotopeCheckout
 	    	$arrBuffer[$key]['id'] = str_replace('-', '_' , standardize($arrSteps['class']));
     	}
     	
+    	$this->removeConditonalSelect();
+    	
     	return $arrBuffer;
+    }
+	
+	/**
+     * Remove conditional select if we don't need it - todo: find a better way to do this
+     * @return  void
+     */
+    protected function removeConditonalSelect()
+    {    
+    	if ($this->strCurrentStep == 'review_payment' && isset($GLOBALS['TL_JAVASCRIPT']['conditionalselect']))
+    	{
+	    	unset($GLOBALS['TL_JAVASCRIPT']['conditionalselect']);
+	    	
+	    	if (is_array($GLOBALS['TL_BODY']) && count($GLOBALS['TL_BODY']))
+	    	{
+		    	foreach ($GLOBALS['TL_BODY'] as $key=>$body)
+		    	{
+			    	if (stripos($body, 'new ConditionalSelect') !== false)
+			    	{
+				    	$GLOBALS['TL_BODY'][$key] = '';
+			    	}
+		    	}
+	    	}
+    	}
     }
 
 }

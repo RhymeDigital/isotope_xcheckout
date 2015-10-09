@@ -1,0 +1,10 @@
+<section id="tl_guest_checkout">
+<?php if ($this->headline): ?>
+<h2><?php echo $this->headline; ?></h2>
+<?php endif; ?>
+<?php if ($this->message): ?>
+<p class="message"><?php echo $this->message; ?></p>
+<?php endif; ?>
+<input type="submit" class="submit" name="<?php echo $this->btnName; ?>" value="<?php echo $this->btnValue; ?>">
+<div class="clear"></div>
+</section>
