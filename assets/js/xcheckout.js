@@ -174,7 +174,7 @@ var IsotopeXCheckout = (function() {
 
     function setPaymentForms()
     {
-        var wrapper = document.getElementById('ctrl_PaymentMethod');
+        var wrapper = document.getElementById('ctrl_paymentmethod');
         if (paymentmethod && wrapper) {
 
             // Get radio buttons
