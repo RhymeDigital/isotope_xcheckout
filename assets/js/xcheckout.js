@@ -198,7 +198,7 @@ var IsotopeXCheckout = (function() {
                 }
                 // Get default option if any
                 if (radios[j].checked) {
-                    checked = radios[k];
+                    checked = radios[j];
                 }
             }
             // Set default option, otherwise set first
