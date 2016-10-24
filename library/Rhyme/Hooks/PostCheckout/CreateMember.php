@@ -69,7 +69,7 @@ class CreateMember extends \Frontend
                 $strUsername = $objUnique === null ? $strUsername : 'id'.rand(1000, 9999).$strUsername;
                 
 				$objMember->username = $strUsername;
-				$objMember->password = \Encryption::encrypt($this->createRandomPassword());
+				$objMember->password = rand(10000000, 99999999);//\Encryption::encrypt($this->createRandomPassword());//This needs to be fixed...
 			}
 			
 			$time = time();
